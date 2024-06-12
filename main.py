@@ -4,10 +4,17 @@ from random import randint
 from deta import AsyncBase as async_base
 from deta._async.client import _AsyncBase as AsyncBase
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_methods=['GET'],
+    allow_headers=['*'],
+)
 
 
 class Nonogram(BaseModel):
@@ -55,7 +62,7 @@ async def get_random_nonogram(
         Random nonogram.
     """
     nonograms = await nonogram_db.fetch()
-    nonogram = nonograms.items[randint(0, len(nonograms.items))]
+    nonogram = nonograms.items[randint(0, len(nonograms.items) - 1)]
     return Nonogram.model_validate(nonogram)
 
 
